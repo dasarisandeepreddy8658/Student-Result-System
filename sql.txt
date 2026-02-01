@@ -1,28 +1,28 @@
--- Create the database
+-- Create database
 CREATE DATABASE IF NOT EXISTS student_db;
 USE student_db;
 
--- Create a table for storing student details
+-- Create students table
 CREATE TABLE IF NOT EXISTS students (
     usn VARCHAR(20) PRIMARY KEY,
     sname VARCHAR(50) NOT NULL
 );
 
--- Create a table for storing subject details
+-- Create subjects table
 CREATE TABLE IF NOT EXISTS subjects (
     subject_code VARCHAR(10) PRIMARY KEY,
     subject_name VARCHAR(100) NOT NULL,
     department VARCHAR(50) NOT NULL
 );
 
--- Create a table for storing marks
+-- Create marks table
 CREATE TABLE IF NOT EXISTS marks (
-    mark_id INT PRIMARY KEY AUTO_INCREMENT,
+    mark_id INT AUTO_INCREMENT PRIMARY KEY,
     usn VARCHAR(20) NOT NULL,
     subject_code VARCHAR(10) NOT NULL,
-    semester INT NOT NULL,
-    marks_obtained INT NOT NULL,
-    UNIQUE KEY unique_student_subject_semester (usn, subject_code, semester),
+    semester INT NOT NULL CHECK (semester BETWEEN 1 AND 8),
+    marks_obtained INT NOT NULL CHECK (marks_obtained BETWEEN 0 AND 100),
+    UNIQUE KEY unique_student_subject_sem (usn, subject_code, semester),
     FOREIGN KEY (usn) REFERENCES students(usn)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
@@ -31,24 +31,40 @@ CREATE TABLE IF NOT EXISTS marks (
         ON UPDATE CASCADE
 );
 
+-- Dashboard counts 
+SELECT 
+    (SELECT COUNT(*) FROM students) AS StudentCount,
+    (SELECT COUNT(*) FROM subjects) AS SubjectCount;
 
--- Create a procedure to count the number of students and subjects
-DROP PROCEDURE IF EXISTS CountStudentsAndSubjects;
 
-DELIMITER //
+-- RESULT QUERY (MySQL TEST VERSION)
 
-CREATE PROCEDURE CountStudentsAndSubjects()
-BEGIN
-    DECLARE studentCount INT;
-    DECLARE subjectCount INT;
 
-    -- Count the number of students
-    SELECT COUNT(*) INTO studentCount FROM students;
+SET @usn = '1NT21CS001';
+SET @semester = 3;
 
-    -- Count the number of subjects
-    SELECT COUNT(*) INTO subjectCount FROM subjects;
+SELECT 
+    st.sname,
+    m.subject_code,
+    s.subject_name,
+    m.marks_obtained
+FROM marks m
+JOIN students st ON m.usn = st.usn
+JOIN subjects s ON m.subject_code = s.subject_code
+WHERE m.usn = @usn
+  AND m.semester = @semester;
 
-    -- Display the counts
-    SELECT CONCAT(studentCount) AS StudentCount, CONCAT(subjectCount) AS SubjectCount;
 
-END //
+-- PASS / FAIL CALCULATION
+
+SELECT
+    st.usn,
+    st.sname,
+    m.semester,
+    CASE
+        WHEN MIN(m.marks_obtained) >= 40 THEN 'PASS'
+        ELSE 'FAIL'
+    END AS Result
+FROM students st
+JOIN marks m ON st.usn = m.usn
+GROUP BY st.usn, m.semester;
