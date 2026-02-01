@@ -1,0 +1,22 @@
+{
+  "name": "student-result-system-nodejs-main",
+  "version": "1.0.0",
+  "description": "The Student Result System is a web application developed for managing student information, subjects, and marks. It provides a user-friendly interface for administrators to efficiently handle academic data.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.15.3",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.11"
+  }
+}
